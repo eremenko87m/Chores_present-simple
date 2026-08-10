@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#062b66">
+<title>Chore Wars — Summer House Mission</title>
+<style>
+:root{--blue:#0877dc;--deep:#062b66;--cyan:#67dafa;--gold:#ffd441;--orange:#ff9e1b;--green:#25ad5b;--red:#dc4f51;--purple:#724bc7;--ink:#082451;--bar-h:48px}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Trebuchet MS,Arial,sans-serif;background:#071d42;color:#fff}button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.app{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 20%,#163f77,#071d42 70%)}
+.stage{position:relative;width:min(100vw,calc((100vh - var(--bar-h))*16/9));height:min(calc(100vh - var(--bar-h)),calc(100vw*9/16));overflow:hidden;background:#48a7ed;isolation:isolate;box-shadow:0 12px 35px rgba(0,0,0,.32)}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;user-select:none;pointer-events:none;transition:opacity .15s ease}.stage.switching .bg{opacity:.32}.overlay{position:absolute;inset:0;z-index:10;pointer-events:none}
+/* Teacher bar is OUTSIDE the artwork so it never covers any slide. */
+.teacherBar{height:var(--bar-h);width:min(100vw,calc((100vh - var(--bar-h))*16/9));display:flex;align-items:center;gap:6px;padding:5px 8px;background:linear-gradient(180deg,#0a3b7a,#062758);border-top:2px solid #61d8ff;box-shadow:0 -4px 14px rgba(0,0,0,.2);z-index:100}.teacherBar.hidden{visibility:hidden;display:flex!important}.toolBtn,.turnBtn{height:36px;border:2px solid rgba(255,255,255,.82);border-radius:10px;background:#0b4b94;color:#fff;padding:0 11px;font-size:12px;font-weight:1000;box-shadow:0 3px 0 #03214b;white-space:nowrap}.toolBtn:hover,.turnBtn:hover{filter:brightness(1.12)}.toolBtn:active,.turnBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #03214b}.toolBtn.primary{border-color:#ffd441;color:#ffe96f}.turnBtn{flex:1;min-width:130px;overflow:hidden;text-overflow:ellipsis}.barSpacer{flex:1}
+/* Artwork fields: the art already supplies the frame. No extra white panel-on-panel. */
+.artPanel{position:absolute;pointer-events:auto;color:var(--ink);display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding:8px;background:transparent;border:0;box-shadow:none}.missionTitle{font-weight:1000;text-align:center;color:#075fb8;font-size:clamp(13px,1.1vw,18px);line-height:1.05;margin:0 0 4px}.prompt{font-size:clamp(13px,1.05vw,18px);font-weight:1000;text-align:center;margin:3px 0}.subprompt{text-align:center;font-weight:800;color:#405b78;font-size:clamp(9px,.72vw,12px);line-height:1.15}.buttonRow{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:5px}.gameBtn{border:2px solid #0b73cf;background:#fff;color:#0753a2;border-radius:9px;padding:5px 8px;font-size:clamp(9px,.72vw,12px);font-weight:1000;box-shadow:0 3px 0 #7eb9df;transition:.1s}.gameBtn:hover{transform:translateY(-1px);border-color:#f5a813}.gameBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #7eb9df}.goodBtn{border-color:#198c4b;background:#e9fff0;color:#0c713a;box-shadow-color:#7bc897}.goldBtn{border-color:#d27c05;background:#fff3bd;color:#784700;box-shadow-color:#e0a037}.purpleBtn{border-color:#704cc8;background:#f1ecff;color:#5533aa;box-shadow-color:#aa98e5}.dangerBtn{border-color:#c83f43;background:#fff0f0;color:#a62b2f;box-shadow-color:#e19a9b}.doneBtn{background:#dffff0!important;border-color:#1faa58!important;color:#087a38!important}.completeBtn{background:linear-gradient(#e7fff0,#c4f4d2);border-color:#168f4c;color:#0b6b38}.answer{margin-top:5px;padding:5px 7px;border-radius:9px;background:rgba(235,249,255,.88);border:1px solid #8cdafa;text-align:center;font-size:clamp(9px,.75vw,12px);font-weight:900;line-height:1.2}.answer strong{color:#c96800}
+/* TITLE — exactly inside the blank framed area. */
+.setup{position:absolute;z-index:20;left:8.05%;top:45.2%;width:32.55%;height:46.7%;padding:4% 3.5%;display:flex;flex-direction:column;justify-content:center;color:var(--ink);pointer-events:auto}.setup h2{margin:0 0 4px;color:#075fb8;font-size:clamp(18px,1.8vw,29px);line-height:1}.setup p{margin:2px 0 8px;font-size:clamp(10px,.88vw,14px);font-weight:800}.nameGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 8px}.nameGrid label{font-size:10px;font-weight:1000}.nameGrid input{width:100%;margin-top:2px;padding:6px 8px;border:2px solid #79d9ff;border-radius:9px;background:#fff;color:var(--ink);font-weight:900}.startBtn{align-self:flex-start;margin-top:8px;border:0;border-radius:11px;padding:8px 18px;background:linear-gradient(#ffe86a,#ffab1c);color:#593700;font-size:clamp(15px,1.4vw,23px);font-weight:1000;box-shadow:0 5px 0 #b96700}.continueBtn{margin-left:6px;background:linear-gradient(#eafff0,#8ee1aa);box-shadow:0 5px 0 #2f8c50;color:#145a30}.startActions{display:flex;align-items:center;flex-wrap:wrap}.startHint{font-size:9px;color:#55708e;margin-top:6px;font-weight:800}
+/* Mission fields measured from the artwork itself. */
+.scene1Panel{left:6.4%;top:75.6%;width:87.2%;height:16.7%;padding:4px 8px}.scene2Panel{left:79.55%;top:31.8%;width:17.35%;height:46.4%;padding:7px}.scene3Panel{left:71.25%;top:23.0%;width:24.9%;height:62.0%;padding:9px}.scene4Panel{left:10.9%;top:80.1%;width:78.1%;height:11.4%;padding:3px 8px;display:grid;grid-template-columns:auto 1fr auto;gap:7px;align-items:center}.scene4Panel .missionTitle{color:#fff;text-shadow:0 2px 0 #052d65;margin:0}.scene4Panel .answer{margin:0;background:rgba(255,255,255,.94)}.scene4Panel .buttonRow{margin:0}.scene6Panel{left:42.6%;top:60.4%;width:50.6%;height:29.2%;padding:7px 10px}.finalPanel{left:22.2%;top:79.6%;width:55.6%;height:13.7%;padding:4px 9px}.finalPanel .missionTitle{margin-bottom:2px}.finalPanel .answer{margin:2px 0;padding:3px 5px}.heroGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.heroBtn{padding:5px 3px}.heroBtn.selected{outline:3px solid #ffd441;background:#fff7cf}.heroName{display:block;font-size:clamp(12px,.95vw,16px)}.heroTag{display:block;font-size:8px;opacity:.72}.scene2Panel .answer{font-size:clamp(8px,.64vw,10.5px)}.scene3Panel .missionTitle{font-size:clamp(13px,1.15vw,19px)}.scene3Panel .gameBtn{padding:5px 7px}.scene6Panel .prompt{font-size:clamp(12px,.95vw,16px)}
+/* Mission 5: only the arrows are interactive; the beautiful wheels remain the original artwork. */
+.wheelLayer{position:absolute;inset:0;pointer-events:none}.artSpinner{position:absolute;width:17.4%;aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:auto;border-radius:50%;cursor:pointer}.artSpinner.who{left:21.65%;top:45.1%}.artSpinner.chore{left:49.55%;top:45.15%}.artSpinner.when{left:77.45%;top:45.1%}.spinnerRotor{position:absolute;inset:0;border-radius:50%;transition:transform 2.45s cubic-bezier(.12,.76,.08,1)}.spinnerArm{position:absolute;left:50%;top:50%;width:5.6%;height:39%;transform:translate(-50%,-100%);border-radius:999px;background:linear-gradient(180deg,#fffdf0,#ffd35d 55%,#f39800);box-shadow:0 1px 1px rgba(0,0,0,.25),0 0 0 2px rgba(5,48,100,.2)}.spinnerHead{position:absolute;left:50%;top:-10%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:17px solid #ffb000;filter:drop-shadow(0 1px 1px rgba(0,0,0,.32))}.spinnerHub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 34% 30%,#fff 0 15%,#8bdcff 16% 28%,#0c70c5 29% 100%);border:3px solid #fff;box-shadow:0 2px 7px rgba(0,0,0,.25)}.artSpinner:hover .spinnerHub{filter:brightness(1.12)}.artSpinner.spinning .spinnerHub{box-shadow:0 0 16px #ffe36b,0 2px 7px rgba(0,0,0,.25)}.scene5Panel{left:14.5%;top:69.0%;width:71.0%;height:22.3%;padding:6px 12px}.wheelResults{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:2px 0}.resultPill{border:2px solid #79d9ff;border-radius:9px;background:#f2fbff;padding:4px 5px;text-align:center;font-weight:1000;font-size:clamp(9px,.72vw,12px);color:#0753a2}.resultPill span{display:block;font-size:8px;color:#55708e}.scene5Panel .prompt{font-size:clamp(13px,1.05vw,18px);margin:2px}.scene5Panel .buttonRow{margin-top:3px}
+/* Final locks. Background keeps its original lock art; open lock overlays only appear after success. */
+.lockOverlay{position:absolute;inset:0;pointer-events:none}.openLock{position:absolute;width:4.2%;aspect-ratio:.82;transform:translate(-50%,-50%);filter:drop-shadow(0 0 8px rgba(255,219,75,.78));opacity:0;animation:lockAppear .45s ease forwards}.openLock .body{position:absolute;left:12%;right:12%;bottom:3%;height:55%;border-radius:18% 18% 12% 12%;background:linear-gradient(#ffe75e,#f0a908);border:2px solid #fff2a0}.openLock .shackle{position:absolute;left:25%;top:2%;width:55%;height:50%;border:5px solid #ffd93c;border-bottom:0;border-radius:50% 50% 0 0;transform-origin:10% 100%;transform:rotate(-34deg);background:transparent}.openLock.focus{animation:lockBounce .65s 1.05s both}.unlockKey{position:absolute;width:6.2%;height:3%;transform:translate(-50%,-50%) rotate(-16deg);z-index:8;opacity:0;animation:keyFly 1.1s cubic-bezier(.2,.82,.2,1) forwards}.unlockKey::before{content:'';position:absolute;left:0;top:50%;width:34%;aspect-ratio:1;border:6px solid #ffd33d;border-radius:50%;transform:translateY(-50%);background:rgba(255,244,160,.22)}.unlockKey::after{content:'';position:absolute;left:29%;top:42%;width:68%;height:18%;border-radius:999px;background:linear-gradient(90deg,#ffd33d,#f59b00);box-shadow:18px 5px 0 -3px #f59b00}.unlockToast{position:absolute;left:22.2%;top:79.6%;width:55.6%;height:13.7%;pointer-events:auto;color:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:4px 10px}.unlockToast strong{font-size:clamp(16px,1.35vw,22px);color:#c66a00}.unlockToast p{margin:1px 0 3px;font-size:clamp(9px,.72vw,12px);font-weight:900}.unlockToast .buttonRow{margin:2px 0}.lock1{left:26.6%;top:25.5%}.lock2{left:73.5%;top:25.5%}.lock3{left:35.5%;top:50.4%}.lock4{left:50.0%;top:50.4%}.lock5{left:64.4%;top:50.4%}.lock6{left:50.0%;top:39.1%}.key1{left:26.6%;top:25.5%}.key2{left:73.5%;top:25.5%}.key3{left:35.5%;top:50.4%}.key4{left:50.0%;top:50.4%}.key5{left:64.4%;top:50.4%}.key6{left:50.0%;top:39.1%}@keyframes keyFly{0%{opacity:0;transform:translate(-210%,-100%) rotate(-30deg) scale(.65)}20%{opacity:1}75%{opacity:1;transform:translate(-55%,-50%) rotate(7deg) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(18deg) scale(.8)}}@keyframes lockAppear{from{opacity:0;transform:translate(-50%,-50%) scale(.65)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}@keyframes lockBounce{0%{transform:translate(-50%,-50%) scale(.6)}55%{transform:translate(-50%,-50%) scale(1.22)}100%{transform:translate(-50%,-50%) scale(1)}}
+/* Final boss buttons */
+.locks{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.lockBtn{border:2px solid #79d7ff;background:#fff;color:var(--ink);border-radius:8px;padding:3px 2px;font-size:clamp(8px,.62vw,10px);font-weight:1000}.lockBtn.done{background:#ddffea;border-color:#26a85b}.lockNum{display:block;color:#0965c1;font-size:12px}.quizGrid{display:grid;gap:7px;margin:9px 0}.quizBtn{border:3px solid #7fdcff;background:#f9fdff;color:var(--ink);border-radius:10px;padding:8px 10px;text-align:left;font-weight:900}.quizBtn.correct{background:#dfffea;border-color:#29ac5e}.quizBtn.wrong{background:#ffe3e3;border-color:#dd5454}.timer{font-size:clamp(50px,7vw,90px);font-weight:1000;color:#dd7b00}
+/* Modal */
+.modal{position:absolute;z-index:80;inset:0;background:rgba(4,25,60,.5);display:grid;place-items:center;padding:5%;pointer-events:auto}.modalCard{width:min(90%,720px);max-height:86%;overflow:auto;background:#fff;color:var(--ink);border:4px solid #6edcff;border-radius:18px;padding:15px;text-align:center;box-shadow:0 18px 48px rgba(0,0,0,.35)}.modalCard h2{margin:0;color:#075fb8;font-size:clamp(22px,2.5vw,38px)}.modalCard p{font-weight:800}.scoreModal{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}.scoreRow{display:flex;justify-content:space-between;align-items:center;background:#edfaff;border:2px solid #7bd8ff;border-radius:12px;padding:8px 10px}.scoreAdjust{display:flex;align-items:center;gap:7px;background:#ffd441;color:#5a3400;border-radius:999px;padding:3px 6px;font-weight:1000}.miniAdjust{border:0;border-radius:999px;padding:4px 9px;background:#fff;color:#0753a2;font-weight:1000}.scoreValue{min-width:24px;text-align:center}.dangerAction{border-color:#c83f43;color:#a62b2f;background:#fff2f2}
+/* tiny celebratory particles */
+.confetti{position:absolute;z-index:90;top:-4%;width:8px;height:15px;border-radius:2px;animation:fall 3.2s linear forwards}@keyframes fall{to{transform:translate(var(--drift),112vh) rotate(760deg);opacity:.15}}
+.loading{position:absolute;z-index:120;inset:0;background:#072b66;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}.loading h1{margin:0;font-size:clamp(28px,4vw,58px)}.loadTrack{width:min(60%,520px);height:12px;background:#173d72;border-radius:999px;overflow:hidden}.loadFill{height:100%;width:0;background:linear-gradient(90deg,#57dcff,#ffd441);transition:.15s}
+@media(max-width:800px){:root{--bar-h:44px}.teacherBar{gap:3px;padding:4px}.toolBtn,.turnBtn{height:34px;padding:0 7px;font-size:10px}.teacherBar .optional{display:none}.setup{padding:3%}.setup p,.startHint{display:none}.scene2Panel,.scene3Panel,.scene6Panel{font-size:9px}.gameBtn{padding:4px 5px}.scoreModal{grid-template-columns:1fr}.scene4Panel{grid-template-columns:1fr;gap:2px}.scene4Panel .missionTitle{display:none}.scene4Panel .answer{display:none}}
+
+/* V14 overrides: cleaner spinner and reward-reveal final board */
+.artSpinner{background:transparent!important;border:none!important;box-shadow:none!important}
+.spinnerRotor{background:transparent!important}
+.spinnerArm{width:3.2%!important;height:39%!important;background:linear-gradient(180deg,#ffe88a,#ffb400 60%,#ea8300)!important;box-shadow:0 1px 3px rgba(0,0,0,.32)!important}
+.spinnerHead{border-left:8px solid transparent!important;border-right:8px solid transparent!important;border-bottom:15px solid #ffb000!important}
+.spinnerHub{width:13%!important;border:0!important;background:radial-gradient(circle at 35% 30%,#dff8ff 0 22%,#5dc6ff 23% 48%,#0d66bb 49% 100%)!important;box-shadow:0 1px 6px rgba(0,0,0,.28)!important}
+.lockOverlay{position:absolute;inset:0;pointer-events:none}
+.rewardMask{position:absolute;border-radius:18px;background:rgba(5,12,28,.58);border:3px solid rgba(255,255,255,.3);box-shadow:inset 0 0 18px rgba(0,0,0,.45),0 0 16px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .45s ease,transform .45s ease}
+.rewardMask::after{content:'🔒';font-size:clamp(22px,2vw,38px);filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+.rewardMask.unlocked{opacity:0;transform:scale(1.02)}
+.rewardMask.unlocking{animation:unlockFade 1.1s ease forwards, rewardPulse 1.1s ease forwards}
+.rewardMask.slot1{left:19.1%;top:23.4%;width:18.8%;height:22.9%}
+.rewardMask.slot2{left:39.3%;top:23.4%;width:18.8%;height:22.9%}
+.rewardMask.slot3{left:59.5%;top:23.4%;width:18.8%;height:22.9%}
+.rewardMask.slot4{left:19.1%;top:47.2%;width:18.8%;height:22.9%}
+.rewardMask.slot5{left:39.3%;top:47.2%;width:18.8%;height:22.9%}
+.rewardMask.slot6{left:59.5%;top:47.2%;width:18.8%;height:22.9%}
+.unlockToast{position:absolute;left:22.2%;top:79.6%;width:55.6%;height:13.7%;pointer-events:auto;color:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:4px 10px}
+.unlockToast strong{font-size:clamp(16px,1.35vw,22px);color:#c66a00}
+.unlockToast p{margin:2px 0;font-size:clamp(10px,.82vw,14px);font-weight:800}
+.finalPanel .locks{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.lockBtn{padding:6px 4px;border-radius:10px;border:2px solid #0b73cf;background:#fff;color:#0753a2;font-weight:1000;font-size:clamp(9px,.72vw,12px);box-shadow:0 3px 0 #7eb9df}
+.lockBtn.done{background:#e0ffea;border-color:#1daa54;color:#0e7f41}
+.lockNum{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;margin-right:4px;background:#0b73cf;color:#fff;font-size:11px;font-weight:1000}
+.lockBtn.done .lockNum{background:#1daa54}
+@keyframes unlockFade{0%{opacity:.7}65%{opacity:.15}100%{opacity:0}}
+@keyframes rewardPulse{0%{box-shadow:0 0 0 rgba(255,214,77,0)}45%{box-shadow:0 0 24px rgba(255,214,77,.72)}100%{box-shadow:0 0 0 rgba(255,214,77,0)}}
+
+
+/* V15 boss feedback effects */
+.stage.shake{animation:stageShake .42s ease}
+@keyframes stageShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.bossFxLayer{position:absolute;inset:0;z-index:75;pointer-events:none;overflow:hidden}
+.dirtBlob{position:absolute;left:50%;top:41%;width:clamp(34px,4vw,72px);height:clamp(28px,3.2vw,56px);background:radial-gradient(circle at 30% 35%,#8b5f32 0 26%,#6b4120 27% 68%,#4c2913 69% 100%);border-radius:55% 45% 50% 40%/45% 60% 40% 55%;box-shadow:0 0 0 3px rgba(67,36,17,.12);opacity:0;animation:dirtFly .72s cubic-bezier(.14,.72,.26,1) forwards}
+.dirtBlob::before,.dirtBlob::after{content:'';position:absolute;background:inherit;border-radius:inherit}
+.dirtBlob::before{width:44%;height:44%;left:-8%;top:18%}
+.dirtBlob::after{width:34%;height:34%;right:-6%;bottom:10%}
+@keyframes dirtFly{0%{transform:translate(var(--sx),var(--sy)) scale(.22) rotate(0deg);opacity:0}40%{opacity:1}70%{transform:translate(0,0) scale(1.08) rotate(120deg);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(.92) rotate(170deg);opacity:0}}
+.cleanSweep{position:absolute;left:34%;top:25%;width:32%;height:28%;border-radius:50%;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.88),rgba(122,236,255,.35) 45%,rgba(122,236,255,0) 72%);filter:blur(1px);opacity:0;animation:cleanFlash .95s ease forwards}
+.cleanSweep::before{content:'';position:absolute;left:-8%;top:42%;width:116%;height:18%;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.95),rgba(136,234,255,.15),rgba(255,255,255,0));transform:rotate(-18deg)}
+@keyframes cleanFlash{0%{transform:scale(.5);opacity:0}25%{opacity:1}65%{transform:scale(1.08);opacity:.95}100%{transform:scale(1.18);opacity:0}}
+.sparkle{position:absolute;left:50%;top:41%;width:16px;height:16px;transform:translate(-50%,-50%);opacity:0;animation:sparklePop .95s ease forwards}
+.sparkle::before,.sparkle::after{content:'';position:absolute;left:50%;top:50%;background:#fff7c7;border-radius:999px;transform:translate(-50%,-50%)}
+.sparkle::before{width:3px;height:20px;box-shadow:0 0 10px rgba(255,245,165,.9)}
+.sparkle::after{width:20px;height:3px;box-shadow:0 0 10px rgba(120,234,255,.9)}
+@keyframes sparklePop{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}35%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.25);opacity:0}}
+.bossFxText{position:absolute;left:50%;top:17%;transform:translateX(-50%);padding:8px 16px;border-radius:999px;font-weight:1000;font-size:clamp(16px,1.55vw,28px);letter-spacing:.5px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25);opacity:0;animation:bossTextPop .9s ease forwards}
+.bossFxText.bad{background:linear-gradient(180deg,#9b5b2a,#5a2b10)}
+.bossFxText.good{background:linear-gradient(180deg,#4cc8ff,#0a73d0)}
+@keyframes bossTextPop{0%{transform:translateX(-50%) translateY(-10px) scale(.8);opacity:0}25%{opacity:1}80%{opacity:1}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:0}}
+.feedbackNote{margin-top:8px;padding:8px 10px;border-radius:12px;background:#edfaff;border:2px solid #79d9ff;font-weight:900;font-size:14px}
+.feedbackNote.bad{background:#fff2e8;border-color:#d38b52;color:#7b3d10}
+.feedbackNote.good{background:#e7fff0;border-color:#70cf96;color:#0d7a3e}
+
+
+/* V16 sale-ready alignment overrides */
+.scene2Panel{left:77.15%!important;top:31.0%!important;width:20.15%!important;height:46.7%!important;padding:7px 8px!important}
+.scene3Panel{left:70.25%!important;top:21.1%!important;width:25.15%!important;height:65.4%!important;padding:8px 9px!important}
+.scene5Panel{left:14.1%!important;top:69.0%!important;width:71.7%!important;height:23.4%!important;padding:6px 12px!important}
+.finalPanel{left:20.8%!important;top:78.3%!important;width:58.4%!important;height:15.0%!important;padding:4px 9px!important}
+/* Only an arrow + small blue hub sit over the original wheel artwork. */
+.artSpinner{background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;padding:0!important}
+.spinnerRotor{background:transparent!important;border:0!important;box-shadow:none!important}
+.spinnerArm{width:2.8%!important;height:39%!important;background:linear-gradient(180deg,#ffe88a,#ffb300 62%,#e88300)!important;box-shadow:0 1px 2px rgba(0,0,0,.32)!important}
+.spinnerHead{border-left:8px solid transparent!important;border-right:8px solid transparent!important;border-bottom:15px solid #ffae00!important}
+.spinnerHub{width:11.5%!important;border:0!important;background:radial-gradient(circle at 34% 28%,#68d2ff 0 22%,#1685d6 23% 52%,#0756a5 53% 100%)!important;box-shadow:0 1px 6px rgba(0,0,0,.28)!important}
+/* Final rewards begin dark; completing their mapped mission reveals the original colour artwork. */
+.rewardMask{border-radius:15px!important;background:rgba(2,8,22,.72)!important;border:2px solid rgba(172,214,255,.38)!important;box-shadow:inset 0 0 22px rgba(0,0,0,.55)!important}
+.rewardMask::after{content:'LOCKED'!important;padding:5px 10px;border-radius:999px;background:rgba(5,34,77,.84);border:1px solid rgba(255,255,255,.55);color:#fff;font-size:clamp(10px,.85vw,15px)!important;font-weight:1000;letter-spacing:.8px;text-shadow:0 1px 2px #000;filter:none!important}
+.rewardMask.slot1{left:18.45%!important;top:23.7%!important;width:19.85%!important;height:25.5%!important}
+.rewardMask.slot2{left:39.45%!important;top:23.7%!important;width:19.85%!important;height:25.5%!important}
+.rewardMask.slot3{left:60.45%!important;top:23.7%!important;width:19.85%!important;height:25.5%!important}
+.rewardMask.slot4{left:18.45%!important;top:50.2%!important;width:19.85%!important;height:25.2%!important}
+.rewardMask.slot5{left:39.45%!important;top:50.2%!important;width:19.85%!important;height:25.2%!important}
+.rewardMask.slot6{left:60.45%!important;top:50.2%!important;width:19.85%!important;height:25.2%!important}
+/* Mission 3 art correction: cover the old baked text without changing character artwork. */
+.m3ArtFix{position:absolute;inset:0;z-index:8;pointer-events:none}
+.m3MariaName{position:absolute;left:16.55%;top:46.75%;width:9.85%;height:5.1%;display:flex;align-items:center;justify-content:center;border-radius:7px;background:linear-gradient(#f6a625,#d87f06);border:2px solid #6c3700;color:#fff;font-weight:1000;font-size:clamp(15px,1.35vw,23px);text-shadow:0 2px 2px rgba(0,0,0,.4)}
+.m3CluePatch{position:absolute;left:31.75%;width:23.55%;height:6.15%;display:flex;align-items:center;padding-left:1.55%;background:#f7e6c0;color:#1d2630;font-weight:1000;font-size:clamp(10px,1.0vw,17px);line-height:1;white-space:nowrap;overflow:hidden}
+.m3CluePatch.c1{top:23.55%}.m3CluePatch.c2{top:30.25%}.m3CluePatch.c3{top:36.95%}.m3CluePatch.c4{top:43.65%}.m3CluePatch.c5{top:50.35%}.m3CluePatch.c6{top:57.05%}.m3CluePatch.c7{top:63.75%}.m3CluePatch.c8{top:70.45%}.m3CluePatch.c9{top:77.15%}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="stage" id="stage">
+    <img class="bg" id="bg" src="assets/title.webp" alt="Chore Wars game">
+    <div class="loading" id="loading"><h1>CHORE WARS</h1><div>Loading mission...</div><div class="loadTrack"><div class="loadFill" id="loadFill"></div></div></div>
+    <section class="setup" id="setup">
+      <h2>4-PLAYER CLASS MODE</h2>
+      <p>Meet Max, Maria, Leo and Zoe — then start the Summer House Mission.</p>
+      <div class="nameGrid">
+        <label>Max<input id="p1" value="Max" maxlength="14"></label>
+        <label>Maria<input id="p2" value="Maria" maxlength="14"></label>
+        <label>Leo<input id="p3" value="Leo" maxlength="14"></label>
+        <label>Zoe<input id="p4" value="Zoe" maxlength="14"></label>
+      </div>
+      <div class="startActions"><button class="startBtn" id="startBtn">START</button><button class="startBtn continueBtn hidden" id="continueBtn">CONTINUE</button></div>
+      <div class="startHint">Tip: progress is saved automatically in this browser.</div>
+    </section>
+    <div class="overlay" id="overlay"></div>
+    <div class="bossFxLayer" id="bossFx"></div>
+    <div class="modal hidden" id="modal"><div class="modalCard" id="modalCard"></div></div>
+  </main>
+  <nav class="teacherBar hidden" id="teacherBar">
+    <button class="toolBtn" id="backBtn">◀ BACK</button>
+    <button class="toolBtn" id="scoreBtn">SCORES</button>
+    <button class="turnBtn" id="turnBtn">TURN: MAX</button>
+    <button class="toolBtn optional" id="musicBtn">MUSIC ON</button>
+    <button class="toolBtn optional" id="soundBtn">SFX ON</button>
+    <button class="toolBtn optional" id="fullBtn">FULLSCREEN</button>
+    <button class="toolBtn primary" id="nextBtn">NEXT ▶</button>
+  </nav>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const stage=$('stage'),bg=$('bg'),overlay=$('overlay'),bossFx=$('bossFx'),modal=$('modal'),modalCard=$('modalCard'),teacherBar=$('teacherBar');
+const images={0:'meet.webp',1:'mission1.webp',2:'mission2.webp',3:'mission3.webp',4:'mission4.webp',5:'mission5.webp',6:'mission6.webp',7:'final.webp'};
+const heroes=[['Max','surfer'],['Maria','skater'],['Leo','gamer'],['Zoe','music fan']];
+const heroFacts={
+ Max:{country:'The USA',age:12,birthday:'5 January',hobby:'surfing',pet:'dog'},
+ Maria:{country:'Russia',age:10,birthday:'7 February',hobby:'skateboarding',pet:'hamster'},
+ Leo:{country:'The UK',age:13,birthday:'10 April',hobby:'gaming',pet:'cat'},
+ Zoe:{country:'Italy',age:11,birthday:'21 March',hobby:'music',pet:'rabbit'}
+};
+const chores=['make the bed','wash the dishes','feed the dog','water the plants','take out the rubbish','vacuum the floor'];
+const heroChores={
+ Max:['make the bed','wash the dishes','feed the dog','mop the floor','do the ironing'],
+ Maria:['make the bed','wash the dishes','feed the dog','water the plants','take out the rubbish'],
+ Leo:['make the bed','wash the dishes','feed the dog','take out the rubbish','mop the floor'],
+ Zoe:['make the bed','wash the dishes','water the plants','take out the rubbish','do the ironing']
+};
+/* Mission 2 is deliberately FIXED, not random. Mission 3 depends on these facts. */
+const heroPrompts={
+ Max:[
+  {q:'Does Max always wash the dishes?',a:'Yes, he does. Max always washes the dishes.'},
+  {q:'Does Max sometimes feed the dog?',a:'Yes, he does. Max sometimes feeds the dog.'},
+  {q:'Does Max often mop the floor?',a:'Yes, he does. Max often mops the floor.'}
+ ],
+ Maria:[
+  {q:'Does Maria usually make the bed?',a:'Yes, she does. Maria usually makes the bed.'},
+  {q:'Does Maria often water the plants?',a:'Yes, she does. Maria often waters the plants.'},
+  {q:'Does Maria sometimes take out the rubbish?',a:'Yes, she does. Maria sometimes takes out the rubbish.'}
+ ],
+ Leo:[
+  {q:'Does Leo usually wash the dishes?',a:'Yes, he does. Leo usually washes the dishes.'},
+  {q:'Does Leo often water the plants?',a:'Yes, he does. Leo often waters the plants.'},
+  {q:'Does Leo sometimes mop the floor?',a:'Yes, he does. Leo sometimes mops the floor.'}
+ ],
+ Zoe:[
+  {q:'Does Zoe usually water the plants?',a:'Yes, she does. Zoe usually waters the plants.'},
+  {q:'Does Zoe often take out the rubbish?',a:'Yes, she does. Zoe often takes out the rubbish.'},
+  {q:'Does Zoe sometimes vacuum the floor?',a:'Yes, she does. Zoe sometimes vacuums the floor.'}
+ ]
+};
+/* Exactly 2 BE facts + 2 HAVE GOT facts + 5 Present Simple facts; includes negatives. */
+const attentive=[
+ {text:'Max is 12 years old.',truth:true,why:'Correct. Max is 12.'},
+ {text:'Zoe is from Italy.',truth:true,why:'Correct. Zoe is from Italy.'},
+ {text:'Maria has got a rabbit.',truth:false,why:'False. Maria has got a hamster.'},
+ {text:"Leo hasn’t got a hamster.",truth:true,why:'Correct. Leo has got a cat.'},
+ {text:'Max always washes the dishes.',truth:true,why:'Correct. This is one of Max’s fixed Mission 2 prompts.'},
+ {text:'Maria doesn’t do the ironing.',truth:true,why:'Correct. The ironing is not one of Maria’s Mission 2 chores.'},
+ {text:'Leo often waters the plants.',truth:true,why:'Correct. This is one of Leo’s fixed Mission 2 prompts.'},
+ {text:'Zoe doesn’t vacuum the floor.',truth:false,why:'False. Zoe sometimes vacuums the floor.'},
+ {text:'Maria never takes out the rubbish.',truth:false,why:'False. Maria sometimes takes out the rubbish.'}
+];
+const battle=[['She','make the bed'],['He','wash the dishes'],['They','water the plants'],['He','feed the dog'],['She','take out the rubbish'],['They','vacuum the floor']];
+/* Arrays follow the six sectors clockwise from top-left, matching Mission 5 artwork. */
+const wheelWho=['I','You','He','She','We','They'];
+const wheelChores=['wash the dishes','put your toys away','clean the room','take out the rubbish','feed the pet','water the plants'];
+const wheelWhen=['every day','on Mondays','at weekends','always','never','twice a week'];
+/* Mission -> reward opening order: Bedroom, Living Room, Pizza Party, Garden, Pool, Game Room. */
+const unlocks={1:'BEDROOM',2:'LIVING ROOM',3:'PIZZA PARTY',4:'GARDEN',5:'POOL',6:'GAME ROOM'};
+/* Final artwork positions: top row Bedroom/Living/Garden; bottom row Pizza/Pool/Game. */
+const rewardCards=[
+ {mission:1,label:'BEDROOM',cls:'slot1'},
+ {mission:2,label:'LIVING ROOM',cls:'slot2'},
+ {mission:4,label:'GARDEN',cls:'slot3'},
+ {mission:3,label:'PIZZA PARTY',cls:'slot4'},
+ {mission:5,label:'POOL',cls:'slot5'},
+ {mission:6,label:'GAME ROOM',cls:'slot6'}
+];
+const state={scene:-1,returnScene:1,active:0,players:['Max','Maria','Leo','Zoe'].map(name=>({name,score:0})),done:new Set(),unlocked:new Set(),found:new Set(),final:new Set(),selectedHero:null,heroPromptStep:[0,0,0,0],battle:0,m3Index:0,m3Answered:new Set(),wheel:{who:0,chore:0,when:0},rot:{who:0,chore:0,when:0},spinning:{who:false,chore:false,when:false},sound:true,music:true,musicTimer:null,musicStep:0,timer:null};
+const SAVE_KEY='choreWarsV16';
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function bind(id,fn){const e=$(id);if(e)e.onclick=fn}
+function panel(cls,html){overlay.innerHTML=`<section class="artPanel ${cls}">${html}</section>`}
+function updateTurn(){$('turnBtn').textContent='TURN: '+state.players[state.active].name.toUpperCase()}
+function point(n=1){state.players[state.active].score=Math.max(0,state.players[state.active].score+n);if(n>0){sfx('good');state.active=(state.active+1)%4}updateTurn();saveState()}
+function adjustScore(player,delta){state.players[player].score=Math.max(0,state.players[player].score+delta);renderScoresInline();saveState();sfx('click')}
+function renderScoresInline(){const box=modalCard.querySelector('.scoreModal');if(!box)return;box.querySelectorAll('.scoreValue').forEach((el,i)=>el.textContent=state.players[i].score)}
+function third(c){const map={'make the bed':'makes the bed','wash the dishes':'washes the dishes','feed the dog':'feeds the dog','feed the pet':'feeds the pet','water the plants':'waters the plants','take out the rubbish':'takes out the rubbish','vacuum the floor':'vacuums the floor','mop the floor':'mops the floor','do the ironing':'does the ironing','clean the room':'cleans the room','put your toys away':'puts your toys away'};return map[c]||c}
+function forms(pron,c){const he=pron==='He'||pron==='She';return [pron+' '+(he?third(c):c)+'.',pron+' '+(he?"doesn’t":"don’t")+' '+c+'.',(he?'Does ':'Do ')+pron.toLowerCase()+' '+c+'?']}
+function currentHeroPrompt(){if(state.selectedHero===null)return null;const name=heroes[state.selectedHero][0],list=heroPrompts[name],step=state.heroPromptStep[state.selectedHero]%list.length;return list[step]}
+function heroPrompt(showAnswer=false){const item=currentHeroPrompt();if(!item)return 'Choose Max, Maria, Leo or Zoe.';return `<strong>${item.q}</strong><br><span class="subprompt">${showAnswer?'Model answer: '+item.a:'Another student answers the question.'}</span>`}
+function nextHeroPrompt(){if(state.selectedHero===null){$('heroAnswer').innerHTML='Choose a hero first.';return}const name=heroes[state.selectedHero][0];state.heroPromptStep[state.selectedHero]=(state.heroPromptStep[state.selectedHero]+1)%heroPrompts[name].length;saveState();$('heroAnswer').innerHTML=heroPrompt(false);sfx('click')}
+function sentenceFromWheel(){const who=wheelWho[state.wheel.who],c=wheelChores[state.wheel.chore],when=wheelWhen[state.wheel.when],thirdSing=who==='He'||who==='She';return [who+' '+(thirdSing?third(c):c)+' '+when+'.',who+' '+(thirdSing?"doesn’t":"don’t")+' '+c+' '+when+'.',(thirdSing?'Does ':'Do ')+who.toLowerCase()+' '+c+' '+when+'?']}
+/* ---------- AUDIO: lightweight original procedural summer arcade groove ---------- */
+let audioCtx=null,noiseBuf=null;
+function audio(){if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;audioCtx=new AC()}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function tone(freq,d=.1,type='sine',vol=.025,at=0){if(!state.sound)return;try{const c=audio(),t=c.currentTime+at,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(c.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+function sfx(k){if(k==='click')tone(520,.055,'square',.014);if(k==='good'){tone(660,.09,'triangle',.03);tone(880,.12,'triangle',.027,.075)}if(k==='spin'){[280,350,430,520].forEach((f,i)=>tone(f,.055,'square',.009,i*.035))}if(k==='unlock'){[440,554,659,880].forEach((f,i)=>tone(f,.17,'triangle',.035,i*.09))}if(k==='win'){[523,659,784,1046].forEach((f,i)=>tone(f,.24,'triangle',.045,i*.11))}}
+function musicTone(freq,at,d=.12,vol=.01,type='triangle',cut=2200){if(!state.music)return;try{const c=audio(),o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();o.type=type;o.frequency.value=freq;f.type='lowpass';f.frequency.value=cut;const t=c.currentTime+at;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(f).connect(g).connect(c.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
+function noise(){const c=audio();if(!noiseBuf){noiseBuf=c.createBuffer(1,c.sampleRate*.25,c.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}return noiseBuf}
+function kick(){if(!state.music)return;const c=audio(),o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.frequency.setValueAtTime(115,t);o.frequency.exponentialRampToValueAtTime(48,t+.12);g.gain.setValueAtTime(.045,t);g.gain.exponentialRampToValueAtTime(.0001,t+.14);o.connect(g).connect(c.destination);o.start(t);o.stop(t+.15)}
+function hat(vol=.008){if(!state.music)return;const c=audio(),s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain(),t=c.currentTime;s.buffer=noise();f.type='highpass';f.frequency.value=6500;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+.035);s.connect(f).connect(g).connect(c.destination);s.start(t);s.stop(t+.04)}
+function snare(){if(!state.music)return;const c=audio(),s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain(),t=c.currentTime;s.buffer=noise();f.type='bandpass';f.frequency.value=1800;g.gain.setValueAtTime(.018,t);g.gain.exponentialRampToValueAtTime(.0001,t+.11);s.connect(f).connect(g).connect(c.destination);s.start(t);s.stop(t+.12);musicTone(180,0,.08,.008,'triangle',600)}
+function musicTick(){if(!state.music)return;const step=state.musicStep%16,bar=Math.floor(state.musicStep/16)%4;const roots=[130.81,110,87.31,98];const chordTypes=[[0,4,7],[0,3,7],[0,4,7],[0,4,7]],root=roots[bar],ints=chordTypes[bar];if(step===0||step===8)kick();if(step===4||step===12)snare();if(step%2===0)hat(step%4===0?.007:.005);if([0,3,6,8,11,14].includes(step))musicTone(root*(step===8?2:1),0,.16,.009,'triangle',900);if(step%2===0){const note=root*2*Math.pow(2,ints[(step/2)%3]/12);musicTone(note,0,.11,.007,'sine',2600)}if(step===7||step===15)musicTone(root*4*Math.pow(2,7/12),0,.07,.004,'sine',3500);state.musicStep++}
+function startMusic(){if(state.musicTimer)return;state.music=true;$('musicBtn').textContent='MUSIC ON';musicTick();state.musicTimer=setInterval(musicTick,139)}
+function stopMusic(){state.music=false;if(state.musicTimer){clearInterval(state.musicTimer);state.musicTimer=null}$('musicBtn').textContent='MUSIC OFF'}
+function toggleMusic(){state.music?stopMusic():startMusic();saveState()}
+/* ---------- persistence ---------- */
+function saveState(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({scene:state.scene,active:state.active,players:state.players,done:[...state.done],unlocked:[...state.unlocked],found:[...state.found],final:[...state.final],selectedHero:state.selectedHero,heroPromptStep:state.heroPromptStep,battle:state.battle,m3Index:state.m3Index,m3Answered:[...state.m3Answered],wheel:state.wheel,rot:state.rot,sound:state.sound,music:state.music}))}catch(e){} }
+function hasSave(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return !!(d&&d.players&&Array.isArray(d.players))}catch(e){return false}}
+function loadState(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!d)return false;state.scene=Number.isInteger(d.scene)?d.scene:0;state.active=d.active||0;state.players=d.players||state.players;state.done=new Set(d.done||[]);state.unlocked=new Set(d.unlocked||[]);state.found=new Set(d.found||[]);state.final=new Set(d.final||[]);state.selectedHero=d.selectedHero??null;state.heroPromptStep=Array.isArray(d.heroPromptStep)?d.heroPromptStep:[0,0,0,0];state.battle=d.battle||0;state.m3Index=d.m3Index||0;state.m3Answered=new Set(d.m3Answered||[]);state.wheel=d.wheel||state.wheel;state.rot=d.rot||state.rot;state.sound=d.sound!==false;state.music=d.music!==false;return true}catch(e){return false}}
+function clearSave(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
+/* ---------- navigation ---------- */
+function switchBg(src,cb){stage.classList.add('switching');setTimeout(()=>{bg.src=src;stage.classList.remove('switching');if(cb)cb()},120)}
+function setScene(n){state.scene=Math.max(0,Math.min(7,n));closeModal();overlay.innerHTML='';switchBg('assets/'+images[state.scene],renderScene);$('backBtn').disabled=false;$('nextBtn').disabled=false;updateTurn();saveState()}
+function renderScene(){overlay.innerHTML='';if(state.scene===0)meet();if(state.scene===1)m1();if(state.scene===2)m2();if(state.scene===3)m3();if(state.scene===4)m4();if(state.scene===5)m5();if(state.scene===6)m6();if(state.scene===7)finalBoss()}
+function back(){if(state.scene<=0){returnToTitle();return}setScene(state.scene-1);sfx('click')}
+function next(){if(state.scene<7)setScene(state.scene+1);else finalBoss();sfx('click')}
+function returnToTitle(){stopMusic();state.scene=-1;overlay.innerHTML='';bg.src='assets/title.webp';teacherBar.classList.add('hidden');$('setup').classList.remove('hidden');$('continueBtn').classList.toggle('hidden',!hasSave())}
+function meet(){/* artwork already contains the complete dossiers */}
+/* ---------- mission completion ---------- */
+function completeMission(n){const first=!state.done.has(n);state.done.add(n);state.unlocked.add(n);saveState();showUnlock(n,first)}
+function openLocksHtml(focus=0){return `<div class="lockOverlay">${rewardCards.map(card=>{const unlocked=state.unlocked.has(card.mission);const cls=['rewardMask',card.cls,unlocked?'unlocked':'locked',focus===card.mission?'unlocking':''].join(' ').trim();return `<div class="${cls}" data-reward="${card.label}"></div>`}).join('')}</div>`}
+function showUnlock(n,animate=true){state.returnScene=n;state.scene=7;switchBg('assets/final.webp',()=>{overlay.innerHTML=openLocksHtml(animate?n:0)+`<div class="unlockToast"><strong>MISSION ${n} COMPLETE — ${unlocks[n]} OPEN!</strong><p>The reward card is now in full colour. The teacher chooses when to move on.</p><div class="buttonRow"><button class="gameBtn" id="unlockBack">BACK TO MISSION</button><button class="gameBtn goodBtn" id="unlockNext">${n<6?'NEXT MISSION':'GO TO FINAL BOSS'}</button></div></div>`;if(animate)sfx('unlock');bind('unlockBack',()=>setScene(n));bind('unlockNext',()=>setScene(Math.min(7,n+1)))})}
+/* ---------- missions ---------- */
+function m1(){panel('scene1Panel',`<div class="missionTitle">FIND THE PROBLEMS</div><div class="buttonRow">${chores.map((c,i)=>`<button class="gameBtn ${state.found.has(c)?'doneBtn':''}" data-chore="${i}">${state.found.has(c)?'FOUND: ':''}${c}</button>`).join('')}</div><div class="answer" id="m1answer">Choose a problem, then make a Present Simple sentence.</div><div class="buttonRow"><button class="gameBtn goldBtn" id="m1point">GOOD SENTENCE +1</button><button class="gameBtn goodBtn completeBtn" id="m1complete">COMPLETE MISSION</button></div>`);overlay.querySelectorAll('[data-chore]').forEach(b=>b.onclick=()=>{const c=chores[+b.dataset.chore];state.found.add(c);$('m1answer').innerHTML=`Say: <strong>I ${c}.</strong> / <strong>He or she ${third(c)}.</strong>`;m1();saveState();sfx('click')});bind('m1point',()=>point());bind('m1complete',()=>completeMission(1))}
+function m2(){panel('scene2Panel',`<div class="missionTitle">SPEAKING CONTROL</div><div class="heroGrid">${heroes.map((h,i)=>`<button class="gameBtn heroBtn ${state.selectedHero===i?'selected':''}" data-hero="${i}"><span class="heroName">${h[0]}</span><span class="heroTag">${h[1]}</span></button>`).join('')}</div><div class="answer" id="heroAnswer">${heroPrompt(false)}</div><div class="subprompt">Fixed prompts — the same facts are used later in Mission 3.</div><div class="buttonRow"><button class="gameBtn goldBtn" id="newPrompt">NEXT PROMPT</button><button class="gameBtn purpleBtn" id="showModelPrompt">SHOW MODEL</button><button class="gameBtn goldBtn" id="heroPoint">GOOD ANSWER +1</button></div><div class="buttonRow"><button class="gameBtn goodBtn completeBtn" id="m2complete">COMPLETE MISSION</button></div>`);overlay.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{state.selectedHero=+b.dataset.hero;saveState();m2();sfx('click')});bind('newPrompt',nextHeroPrompt);bind('showModelPrompt',()=>{$('heroAnswer').innerHTML=heroPrompt(true);sfx('click')});bind('heroPoint',()=>point());bind('m2complete',()=>completeMission(2))}
+function m3(){const c=attentive[state.m3Index];const artFix=`<div class="m3ArtFix"><div class="m3MariaName">Maria</div>${attentive.map((x,i)=>`<div class="m3CluePatch c${i+1}">${x.text}</div>`).join('')}</div>`;overlay.innerHTML=artFix+`<section class="artPanel scene3Panel"><div class="missionTitle">WHO IS THE MOST ATTENTIVE?</div><div class="subprompt">Use the hero dossiers and the fixed Mission 2 facts.</div><div class="buttonRow">${attentive.map((x,i)=>`<button class="gameBtn ${state.m3Answered.has(i)?'doneBtn':state.m3Index===i?'goldBtn':''}" data-clue="${i}">${i+1}</button>`).join('')}</div><div class="answer" id="m3answer"><strong>${c.text}</strong><br>True or false? Explain why.</div><div class="buttonRow"><button class="gameBtn goodBtn" data-tf="1">TRUE</button><button class="gameBtn dangerBtn" data-tf="0">FALSE</button><button class="gameBtn purpleBtn" id="checkM3">CHECK</button></div><div class="buttonRow"><button class="gameBtn goldBtn" id="m3point">GOOD MEMORY +1</button><button class="gameBtn goodBtn completeBtn" id="m3complete">COMPLETE MISSION</button></div></section>`;overlay.querySelectorAll('[data-clue]').forEach(b=>b.onclick=()=>{state.m3Index=+b.dataset.clue;m3();sfx('click')});overlay.querySelectorAll('[data-tf]').forEach(b=>b.onclick=()=>{$('m3answer').innerHTML=`<strong>${c.text}</strong><br>I think it is <strong>${b.dataset.tf==='1'?'TRUE':'FALSE'}</strong> because ...`;sfx('click')});bind('checkM3',()=>{$('m3answer').innerHTML=`<strong>${c.text}</strong><br>Answer: <strong>${c.truth?'TRUE':'FALSE'}</strong><br>${c.why}`;sfx('click')});bind('m3point',()=>{state.m3Answered.add(state.m3Index);point();state.m3Index=(state.m3Index+1)%attentive.length;m3()});bind('m3complete',()=>completeMission(3))}
+function m4(){const x=battle[state.battle];panel('scene4Panel',`<div class="missionTitle">CHORE BATTLE</div><div class="answer" id="battleA">Card ${state.battle+1}: <strong>${x[0]} / ${x[1]}</strong></div><div><div class="buttonRow">${battle.map((y,i)=>`<button class="gameBtn ${i===state.battle?'goldBtn':''}" data-card="${i}">${i+1}</button>`).join('')}</div><div class="buttonRow"><button class="gameBtn purpleBtn" id="revealBattle">REVEAL</button><button class="gameBtn goldBtn" id="battlePoint">+1</button><button class="gameBtn goodBtn completeBtn" id="m4complete">COMPLETE</button></div></div>`);overlay.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{state.battle=+b.dataset.card;m4();sfx('click')});bind('revealBattle',()=>{const f=forms(x[0],x[1]);$('battleA').innerHTML=`<strong>${f[0]}</strong> &nbsp; ${f[1]} &nbsp; ${f[2]}`;sfx('click')});bind('battlePoint',()=>point());bind('m4complete',()=>completeMission(4))}
+function spinnerHtml(key,cls){return `<button class="artSpinner ${cls}" data-spin="${key}" aria-label="Spin ${key}"><div class="spinnerRotor" id="rot-${key}" style="transform:rotate(${state.rot[key]}deg)"><div class="spinnerArm"><span class="spinnerHead"></span></div><div class="spinnerHub"></div></div></button>`}
+function m5(){overlay.innerHTML=`<div class="wheelLayer">${spinnerHtml('who','who')}${spinnerHtml('chore','chore')}${spinnerHtml('when','when')}</div><section class="artPanel scene5Panel"><div class="wheelResults"><div class="resultPill"><span>WHO</span>${wheelWho[state.wheel.who]}</div><div class="resultPill"><span>CHORE</span>${wheelChores[state.wheel.chore]}</div><div class="resultPill"><span>WHEN</span>${wheelWhen[state.wheel.when]}</div></div><div class="prompt" id="wheelPrompt">${wheelWho[state.wheel.who]} + ${wheelChores[state.wheel.chore]} + ${wheelWhen[state.wheel.when]}</div><div class="subprompt">Click a wheel to spin only that wheel, or spin all three together.</div><div class="buttonRow"><button class="gameBtn goldBtn" id="spinAll">SPIN ALL</button><button class="gameBtn purpleBtn" id="modelWheel">SHOW MODEL</button><button class="gameBtn goldBtn" id="wheelPoint">GOOD ROUND +1</button><button class="gameBtn goodBtn completeBtn" id="m5complete">COMPLETE MISSION</button></div></section>`;overlay.querySelectorAll('[data-spin]').forEach(b=>b.onclick=()=>spinWheel(b.dataset.spin));bind('spinAll',spinAll);bind('modelWheel',showWheelModel);bind('wheelPoint',()=>point());bind('m5complete',()=>completeMission(5))}
+function spinAll(){if(Object.values(state.spinning).some(Boolean))return;['who','chore','when'].forEach(k=>spinWheel(k,true))}
+function wheelItems(k){return k==='who'?wheelWho:k==='chore'?wheelChores:wheelWhen}
+function spinWheel(key,batch=false){if(state.spinning[key])return;const items=wheelItems(key),idx=Math.floor(Math.random()*items.length),angles=[330,30,90,150,210,270],current=((state.rot[key]%360)+360)%360,delta=(angles[idx]-current+360)%360;state.wheel[key]=idx;state.rot[key]+=720+delta;state.spinning[key]=true;const el=$('rot-'+key),hit=overlay.querySelector(`[data-spin="${key}"]`);if(hit)hit.classList.add('spinning');if(el)el.style.transform=`rotate(${state.rot[key]}deg)`;sfx('spin');setTimeout(()=>{state.spinning[key]=false;if(hit)hit.classList.remove('spinning');if(!Object.values(state.spinning).some(Boolean)){saveState();m5()}},2500)}
+function showWheelModel(){const f=sentenceFromWheel();$('wheelPrompt').innerHTML=`<strong>${f[0]}</strong><br>${f[1]}<br>${f[2]}`;sfx('click')}
+function m6(){panel('scene6Panel',`<div class="missionTitle">TWO TRUE — ONE FALSE</div><div class="prompt">Speaker: ${esc(state.players[state.active].name)}</div><div class="subprompt">Say 3 sentences about your chores. Two are true. One is false.</div><div class="buttonRow"><button class="gameBtn" data-vote="1">NUMBER 1</button><button class="gameBtn" data-vote="2">NUMBER 2</button><button class="gameBtn" data-vote="3">NUMBER 3</button></div><div class="answer" id="voteAnswer">Friends say: “I think number ... is false.”</div><div class="buttonRow"><button class="gameBtn goldBtn" id="roundPoint">ROUND +1</button><button class="gameBtn goodBtn completeBtn" id="m6complete">COMPLETE MISSION</button></div>`);overlay.querySelectorAll('[data-vote]').forEach(b=>b.onclick=()=>{$('voteAnswer').innerHTML=`Class vote: <strong>NUMBER ${b.dataset.vote}</strong> is false!`;sfx('click')});bind('roundPoint',()=>{point();m6()});bind('m6complete',()=>completeMission(6))}
+/* ---------- final ---------- */
+function finalBoss(){overlay.innerHTML=openLocksHtml()+`<section class="artPanel finalPanel"><div class="missionTitle">FINAL BOSS — BRIGHT GRAMMAR CHALLENGES</div><div class="locks">${[1,2,3,4,5].map(n=>`<button class="lockBtn ${state.final.has(n)?'done':''}" data-lock="${n}"><span class="lockNum">${state.final.has(n)?'✓':n}</span>${['Fix it','Make negative','Make a question','Choose correctly','30-sec challenge'][n-1]}</button>`).join('')}</div><div class="answer">Finish all five challenges and celebrate the Summer House rewards.</div></section>`;overlay.querySelectorAll('[data-lock]').forEach(b=>b.onclick=()=>openLock(+b.dataset.lock));if(state.final.size===5)win()}
+function openLock(n){if(n===5){timerModal();return}const q={1:{q:'Fix it: She wash the dishes every day.',o:['She washes the dishes every day.','She wash the dishes every day.','She does washes the dishes every day.'],a:0},2:{q:'Make it negative: Max feeds the dog.',o:["Max doesn’t feed the dog.","Max don’t feed the dog.","Max doesn’t feeds the dog."],a:0},3:{q:'Make a question: Zoe vacuums the floor.',o:['Does Zoe vacuum the floor?','Do Zoe vacuum the floor?','Does Zoe vacuums the floor?'],a:0},4:{q:'Choose the correct sentence.',o:['Leo waters the plants on Mondays.','Leo water the plants on Mondays.','Leo is water the plants on Mondays.'],a:0}}[n];openModal(`<h2>CHALLENGE ${n}</h2><p>${q.q}</p><div class="quizGrid">${q.o.map((x,i)=>`<button class="quizBtn" data-opt="${i}">${x}</button>`).join('')}</div><div class="feedbackNote" id="bossFeedback">Choose an answer. If it is wrong, the boss throws dirt back. If it is right, the boss loses power and the screen gets cleaner.</div><button class="gameBtn" id="closeModal">CLOSE</button>`);const btns=[...modalCard.querySelectorAll('[data-opt]')];btns.forEach(b=>b.onclick=()=>{if(btns.some(x=>x.disabled))return;const ok=+b.dataset.opt===q.a;b.classList.add(ok?'correct':'wrong');if(ok){btns.forEach(x=>x.disabled=true);$('bossFeedback').className='feedbackNote good';$('bossFeedback').textContent='Correct! Clean energy hits the boss.';bossEffect('good');state.final.add(n);saveState();sfx('good');setTimeout(()=>{closeModal();finalBoss()},900)}else{$('bossFeedback').className='feedbackNote bad';$('bossFeedback').textContent='Oops! Wrong answer — dirt flies back at the heroes. Try again.';bossEffect('wrong');setTimeout(()=>b.classList.remove('wrong'),700)}});bind('closeModal',closeModal)}
+function timerModal(){openModal(`<h2>30-SECOND CHALLENGE</h2><p>Say 6 chore sentences before time runs out.</p><div class="timer" id="timer">30</div><div class="buttonRow"><button class="gameBtn goldBtn" id="timerStart">START</button><button class="gameBtn goodBtn" id="timerDone">WE DID IT!</button><button class="gameBtn" id="closeModal">CLOSE</button></div>`);bind('timerStart',()=>{if(state.timer)clearInterval(state.timer);let t=30;$('timer').textContent=t;state.timer=setInterval(()=>{t--;$('timer').textContent=t;if(t<=0){clearInterval(state.timer);state.timer=null;bossEffect('wrong');tone(160,.35,'sawtooth',.03)}},1000)});bind('timerDone',()=>{if(state.timer)clearInterval(state.timer);state.timer=null;state.final.add(5);saveState();bossEffect('good');sfx('good');setTimeout(()=>{closeModal();finalBoss()},850)});bind('closeModal',closeModal)}
+function win(){if(modal.classList.contains('hidden')){sfx('win');confetti();openModal(`<h2>ALL REWARDS ARE OPEN!</h2><p>Fantastic job! The team completed the missions and the final grammar challenges.</p><div class="buttonRow"><button class="gameBtn goldBtn" id="keepPlaying">KEEP SCORES</button><button class="gameBtn goodBtn" id="newGame">NEW GAME</button></div>`);bind('keepPlaying',closeModal);bind('newGame',resetAll)}}
+/* ---------- score / settings ---------- */
+function renderScoreModal(){openModal(`<h2>TEAM SCORES</h2><div class="scoreModal">${state.players.map((p,i)=>`<div class="scoreRow"><strong>${esc(p.name)}</strong><div class="scoreAdjust"><button class="miniAdjust" data-p="${i}" data-d="-1">−1</button><span class="scoreValue">${p.score}</span><button class="miniAdjust" data-p="${i}" data-d="1">+1</button></div></div>`).join('')}</div><p>Missions complete: ${[...state.done].filter(n=>n>=1&&n<=6).length}/6</p><div class="buttonRow"><button class="gameBtn" id="closeModal">CLOSE</button><button class="gameBtn dangerAction" id="resetProgress">RESET GAME</button></div>`);modalCard.querySelectorAll('.miniAdjust').forEach(b=>b.onclick=()=>{adjustScore(+b.dataset.p,+b.dataset.d)});bind('resetProgress',()=>{if(confirm('Reset scores and mission progress?'))resetAll()});bind('closeModal',closeModal)}
+function openModal(html){modalCard.innerHTML=html;modal.classList.remove('hidden')}
+function closeModal(){modal.classList.add('hidden');if(state.timer){clearInterval(state.timer);state.timer=null}}
+function confetti(){for(let i=0;i<65;i++){const c=document.createElement('i');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=['#ffd23f','#4fd1ff','#ff6b77','#58c979','#8e63ec'][i%5];c.style.setProperty('--drift',(Math.random()*240-120)+'px');c.style.animationDelay=(Math.random()*.5)+'s';stage.appendChild(c);setTimeout(()=>c.remove(),3400)}}
+function bossEffect(type){bossFx.innerHTML='';stage.classList.remove('shake');void stage.offsetWidth;if(type==='wrong'){stage.classList.add('shake');for(let i=0;i<8;i++){const d=document.createElement('i');d.className='dirtBlob';d.style.setProperty('--sx',`${-220+Math.random()*440}px`);d.style.setProperty('--sy',`${-150+Math.random()*250}px`);d.style.setProperty('--tx',`${-20+Math.random()*40}px`);d.style.setProperty('--ty',`${-10+Math.random()*30}px`);d.style.left=(44+Math.random()*12)+'%';d.style.top=(32+Math.random()*18)+'%';d.style.animationDelay=(i*0.03)+'s';bossFx.appendChild(d)}const t=document.createElement('div');t.className='bossFxText bad';t.textContent='DIRTY HIT!';bossFx.appendChild(t);tone(180,.11,'sawtooth',.035);tone(130,.13,'square',.025,.08)}else{const sweep=document.createElement('div');sweep.className='cleanSweep';bossFx.appendChild(sweep);for(let i=0;i<10;i++){const s=document.createElement('i');s.className='sparkle';s.style.setProperty('--dx',`${-140+Math.random()*280}px`);s.style.setProperty('--dy',`${-80+Math.random()*160}px`);s.style.animationDelay=(i*0.05)+'s';bossFx.appendChild(s)}const t=document.createElement('div');t.className='bossFxText good';t.textContent='CLEAN HIT!';bossFx.appendChild(t);tone(620,.09,'triangle',.03);tone(840,.11,'triangle',.028,.08)}setTimeout(()=>{bossFx.innerHTML='';stage.classList.remove('shake')},1100)}
+
+function resetAll(){stopMusic();clearSave();closeModal();state.scene=-1;state.active=0;state.players=['Max','Maria','Leo','Zoe'].map(name=>({name,score:0}));state.done.clear();state.unlocked.clear();state.found.clear();state.final.clear();state.selectedHero=null;state.heroPromptStep=[0,0,0,0];state.battle=0;state.m3Index=0;state.m3Answered.clear();state.wheel={who:0,chore:0,when:0};state.rot={who:0,chore:0,when:0};['p1','p2','p3','p4'].forEach((id,i)=>$(id).value=['Max','Maria','Leo','Zoe'][i]);returnToTitle()}
+/* ---------- boot ---------- */
+function startFresh(){clearSave();state.players.forEach((p,i)=>p.name=$('p'+(i+1)).value.trim()||['Max','Maria','Leo','Zoe'][i]);$('setup').classList.add('hidden');teacherBar.classList.remove('hidden');state.scene=0;updateTurn();if(state.music)startMusic();setScene(0);sfx('good')}
+function continueSaved(){if(!loadState())return;['p1','p2','p3','p4'].forEach((id,i)=>$(id).value=state.players[i].name);$('setup').classList.add('hidden');teacherBar.classList.remove('hidden');updateTurn();if(state.music)startMusic();setScene(Math.max(0,state.scene));sfx('good')}
+bind('startBtn',startFresh);bind('continueBtn',continueSaved);bind('backBtn',back);bind('nextBtn',next);bind('scoreBtn',renderScoreModal);bind('turnBtn',()=>{state.active=(state.active+1)%4;updateTurn();saveState();sfx('click')});bind('musicBtn',()=>{toggleMusic();sfx('click')});bind('soundBtn',()=>{state.sound=!state.sound;$('soundBtn').textContent=state.sound?'SFX ON':'SFX OFF';saveState();if(state.sound)sfx('click')});bind('fullBtn',async()=>{try{if(!document.fullscreenElement)await stage.requestFullscreen();else await document.exitFullscreen()}catch(e){}});modal.onclick=e=>{if(e.target===modal)closeModal()};
+window.addEventListener('keydown',e=>{if(!teacherBar.classList.contains('hidden')&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){if(e.key==='ArrowLeft')back();if(e.key==='ArrowRight')next();if(e.key.toLowerCase()==='s')renderScoreModal();if(e.key.toLowerCase()==='m')toggleMusic()}});
+window.addEventListener('error',e=>console.error(e.error||e.message));
+/* Preload all images before showing the title. */
+const preload=['title.webp','meet.webp','mission1.webp','mission2.webp','mission3.webp','mission4.webp','mission5.webp','mission6.webp','final.webp'];let loaded=0;preload.forEach(f=>{const im=new Image();const done=()=>{loaded++;$('loadFill').style.width=(loaded/preload.length*100)+'%';if(loaded===preload.length){setTimeout(()=>{$('loading').classList.add('hidden');$('continueBtn').classList.toggle('hidden',!hasSave())},120)}};im.onload=done;im.onerror=done;im.src='assets/'+f});
+})();
+</script>
+</body>
+</html>
